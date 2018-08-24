@@ -1,0 +1,2 @@
+beanstalk.c 和 beanstalk.h
+可以直接拿来加入到项目中就可以用。协议文档看protocol.zh-CN.md
