@@ -77,10 +77,32 @@ int bs_resolve_address(const char *host, int port, struct sockaddr_in *server) {
 int bs_connect(const char *host, int port) {
     int fd, state = 1;
     struct sockaddr_in server;
-
+	
+//add by guoqixin	
+	int optval;
+	socklen_t optlen = sizeof(optval);
+//
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0 || bs_resolve_address(host, port, &server) < 0)
         return BS_STATUS_FAIL;
+	
+//add by guoqixin	
+	//开启tcp keepalive检测
+    optval = 1;
+    setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen);
+
+ 	//探测次数
+    optval = 3;
+    setsockopt(fd, SOL_TCP, TCP_KEEPCNT, &optval, optlen);
+
+ 	//tcp socker上面多久没有报文交互，则开始keepalive探测
+    optval = 30;
+    setsockopt(fd, SOL_TCP, TCP_KEEPIDLE, &optval, optlen);
+
+	//探测报文间隔时间
+    optval = 10;
+    setsockopt(fd, SOL_TCP, TCP_KEEPINTVL, &optval, optlen);
+//
 
     if (connect(fd, (struct sockaddr*)&server, sizeof(server)) != 0) {
         close(fd);
